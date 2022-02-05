@@ -35,6 +35,6 @@ public class SaveCard {
     @NotBlank(message = MessageResponse.NOT_BLANK)
     @Size(min = 6, max = 7, message = MessageResponse.BAD_LENGTH)
     @Pattern(regexp = "^(0?[1-9]|1[012])([2-9][0-9]{3})$", message = MessageResponse.BAD_FORMAT)
-    @Getter @Setter private String expiration_date;
+    @Getter @Setter private String expirationDate;
 
 }

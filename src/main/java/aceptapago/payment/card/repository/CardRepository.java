@@ -38,15 +38,17 @@ public class CardRepository{
                 .withCatalogName("PA_CARD")
                 .withProcedureName("PR_CREATE_CARD")
                 .declareParameters(
-                        new SqlParameter("aid", OracleTypes.VARCHAR),
-                        new SqlParameter("cvv", OracleTypes.VARCHAR)
+                        new SqlParameter("pa_pan", OracleTypes.VARCHAR),
+                        new SqlParameter("pa_expiration_date", OracleTypes.VARCHAR),
+                        new SqlParameter("pa_cvv", OracleTypes.VARCHAR)
                 );
 
         Map<String, Object> spParams = new HashMap<>();
-        spParams.put("pa_aid", card.getPan());
+        spParams.put("pa_pan", card.getPan());
+        spParams.put("pa_expiration_date", card.getExpirationDate());
         spParams.put("pa_cvv", card.getCcv());
         Map<String, Object> outParams = jdbcCall.execute(spParams);
-        BigDecimal value = (BigDecimal) outParams.get("PA_CARD_ID");
+        BigDecimal value = (BigDecimal) outParams.get("pa_id");
         return value.toString();
     }
 
