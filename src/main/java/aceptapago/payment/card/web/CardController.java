@@ -3,6 +3,7 @@ package aceptapago.payment.card.web;
 import aceptapago.payment.card.model.SaveCard;
 import aceptapago.payment.card.services.CardService;
 import aceptapago.payment.commond.model.response.BaseResponse;
+import aceptapago.payment.commond.model.response.ErrorResponse;
 import aceptapago.payment.commond.model.response.SuccessResponse;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -21,6 +23,7 @@ import java.util.List;
 public class CardController {
 
     private final CardService cardService;
+    private ObjectError error;
 
     @Autowired
     public CardController(CardService cardService) {
@@ -35,6 +38,14 @@ public class CardController {
         return new BaseResponse();
     }
 
+    /**
+     * Guarda las datos de una tarjeta
+     * @param userId identificador del usuario
+     * @param userSession sesion activa del usuario
+     * @param accessId identificador de acceso
+     * @param card request de la tarjeta
+     * @return SuccessResponse respuesta de exitp
+     */
     @PostMapping("tajeta/guardar-pago")
     public @JsonFormat SuccessResponse<?> SaveCardPayment(
             @RequestHeader("x-id-usuario") Integer userId,
@@ -56,16 +67,19 @@ public class CardController {
     }
 
     @ExceptionHandler({ MethodArgumentNotValidException.class})
-    public String handleException(MethodArgumentNotValidException e) {
+    public ErrorResponse handleException(MethodArgumentNotValidException e) {
+        /**
+         * Manejador de exceptiones para validaciones
+         */
         BindingResult exceptions = e.getBindingResult();
-        if (exceptions.hasErrors()) {
-            List<ObjectError> errors = exceptions.getAllErrors();
-            if (!((List<?>) errors).isEmpty()) {
-                FieldError fieldError = (FieldError) errors.get(0);
-                return new String(fieldError.toString());
-            }
-        }
-        return new String("Error");
+        List<FieldError> errors = exceptions.getFieldErrors();
+        /**
+         * Lista de mensajes de error
+         */
+        ArrayList<String> details = new ArrayList<>();
+        errors.forEach(error -> details.add( error.getField() + " : " + error.getDefaultMessage()));
+
+        return new ErrorResponse(details);
     }
 
 }
